@@ -3,10 +3,11 @@ from redash_py.client import RedashAPIClient
 
 class QueryExecutor:
 
-    def __init__(self, redaql_instance, query_string: str, datasource_name: str):
+    def __init__(self, redaql_instance, query_string: str, datasource_name: str, pivot_result: bool):
         self.redaql_instance = redaql_instance
         self.query_string = query_string
         self.datasource_name = datasource_name
+        self.pivot_result = pivot_result
 
     def execute_query(self):
         client: RedashAPIClient = self.redaql_instance.client
@@ -20,7 +21,11 @@ class QueryExecutor:
         columns = query_result['data']['columns']
         column_names = [col['name'] for col in columns]
         if rows:
-            return self._get_pretty_report(rows, column_names)
+            if self.pivot_result:
+                return self._get_pivot_report(rows, column_names)
+
+            else:
+                return self._get_pretty_report(rows, column_names)
         return 'no results.\n'
 
     def _get_pretty_report(self, base_data, columns):
@@ -62,6 +67,15 @@ class QueryExecutor:
             ret_str += "{}\n".format("  ".join(row_data_list))
 
         return ret_str
+
+    def _get_pivot_report(self, base_data, columns):
+        result = ''
+        max_col_name_length = max([len(col) for col in columns])
+
+        for row in base_data:
+            for col in columns:
+                result += f'{col.ljust(max_col_name_length)}: {row[col]}\n'
+        return result
 
     @staticmethod
     def get_max_str_length(raw_list_dict_data, column_name):

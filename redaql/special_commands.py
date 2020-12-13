@@ -29,7 +29,21 @@ class HelpExecutor(Executor):
 
     def execute(self):
         for command, executor in SP_COMMANDS.items():
-            print(f'{command}: {executor.help_text()}')
+            print(f'\\{command}: {executor.help_text()}')
+
+
+class PivotExecutor(Executor):
+
+    @staticmethod
+    def help_text():
+        return 'query result toggle pivot.'
+
+    def execute(self):
+        self.redaql_instance.pivot_result = not self.redaql_instance.pivot_result
+        if self.redaql_instance.pivot_result:
+            print('set pivot format')
+        else:
+            print('set normal format')
 
 
 class ExitExecutor(Executor):
@@ -75,5 +89,6 @@ class ConnectionExecutor(Executor):
 SP_COMMANDS = {
     'c': ConnectionExecutor,
     'q': ExitExecutor,
+    'x': PivotExecutor,
     '?': HelpExecutor,
 }

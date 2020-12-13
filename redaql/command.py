@@ -37,6 +37,7 @@ class Redaql:
     def __init__(self):
         self.client = RedashAPIClient()
         self.data_source_name = None
+        self.pivot_result = False
         self.buffer = []
         self.complete_sources = []
         self.init()
@@ -76,7 +77,8 @@ class Redaql:
         executor = QueryExecutor(
             redaql_instance=self,
             query_string=' '.join(self.buffer),
-            datasource_name=self.data_source_name
+            datasource_name=self.data_source_name,
+            pivot_result=self.pivot_result
         )
         results = executor.execute_query()
         print(results)
