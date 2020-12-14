@@ -9,7 +9,7 @@ prettytable==2.0.0
 prompt-toolkit==3.0.8
 Pygments==2.4.2
 readme-renderer==24.0
-redash-py==0.2.0
+redash-py==0.2.1
 requests==2.22.0
 requests-toolbelt==0.9.1
 six==1.12.0

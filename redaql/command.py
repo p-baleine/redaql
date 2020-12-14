@@ -50,12 +50,19 @@ class Redaql:
         print(f'\nsuccess connect server version {version}\n')
 
     def loop(self):
-        answer = prompt(
-            self._get_prompt,
-            history=FileHistory(f'{expanduser("~")}/.redaql.hist'),
-            completer=self._get_completer(),
-        )
-        self.handle(answer)
+        try:
+            answer = prompt(
+                self._get_prompt,
+                history=FileHistory(f'{expanduser("~")}/.redaql.hist'),
+                completer=self._get_completer(),
+            )
+            self.handle(answer)
+        except (exceptions.RedaqlException, RedashPyException) as e:
+            print(e)
+            self.buffer = []
+        except (KeyboardInterrupt, EOFError) as e:
+            print('if want to exit, use \\q')
+            self.buffer = []
 
     def handle(self, text):
         if text == '':
@@ -113,10 +120,6 @@ def main():
     while True:
         try:
             redaql.loop()
-        except (exceptions.RedaqlException, RedashPyException) as e:
-            print(e)
-        except (KeyboardInterrupt, EOFError) as e:
-            print('if want to exit, use \\q')
         except Exception as e:
             traceback.print_exc()
             sys.exit(1)
