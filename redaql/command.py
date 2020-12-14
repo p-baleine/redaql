@@ -1,5 +1,7 @@
 import sys
 import re
+import traceback
+
 from os.path import expanduser
 
 import utils
@@ -13,6 +15,7 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.completion import FuzzyWordCompleter
 
 from redash_py.client import RedashAPIClient
+from redash_py.exceptions import RedashPyException
 
 
 class SpecialCommandHandler:
@@ -107,14 +110,16 @@ class Redaql:
 
 def main():
     redaql = Redaql()
-    try:
-        while True:
+    while True:
+        try:
             redaql.loop()
-    except (exceptions.RedaqlException, KeyboardInterrupt) as e:
-        print(e)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
+        except (exceptions.RedaqlException, RedashPyException) as e:
+            print(e)
+        except (KeyboardInterrupt, EOFError) as e:
+            print('if want to exit, use \\q')
+        except Exception as e:
+            traceback.print_exc()
+            sys.exit(1)
 
 
 if __name__ in '__main__':

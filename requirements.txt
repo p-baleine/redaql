@@ -5,6 +5,8 @@ docutils==0.15.2
 fire==0.2.0
 idna==2.8
 pkginfo==1.5.0.1
+prettytable==2.0.0
+prompt-toolkit==3.0.8
 Pygments==2.4.2
 readme-renderer==24.0
 redash-py==0.2.0
@@ -14,4 +16,5 @@ six==1.12.0
 termcolor==1.1.0
 tqdm==4.32.2
 urllib3==1.25.3
+wcwidth==0.2.5
 webencodings==0.5.1
