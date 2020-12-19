@@ -1,5 +1,6 @@
 import sys
 import fnmatch
+import itertools
 from functools import lru_cache
 
 from abc import ABC, abstractmethod
@@ -89,7 +90,10 @@ class ConnectionExecutor(Executor):
             self.redaql_instance.reset_completer()
             res = client.get_data_source_schema(input_ds_name)
             schemas = [schema['name'] for schema in res['schema']]
-            self.redaql_instance.set_query_mode_completer(schemas)
+            columns = list(
+                itertools.chain.from_iterable([schema['columns'] for schema in res['schema']])
+            )
+            self.redaql_instance.set_query_mode_completer(schemas + columns)
 
 
 class DescExecutor(Executor):
