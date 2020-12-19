@@ -38,11 +38,17 @@ class SpecialCommandHandler:
 
 class Redaql:
     def __init__(self):
-        self.client = RedashAPIClient()
+        self.client = RedashAPIClient(
+            api_key=None,
+            host=None,
+            proxy=None,
+            timeout=None,
+        )
         self.data_source_name = None
         self.pivot_result = False
         self.buffer = []
         self.complete_sources = []
+        self.complete_meta_dict = {}
         self.init()
 
     def init(self):
@@ -104,10 +110,15 @@ class Redaql:
 
     def reset_completer(self):
         self.complete_sources = []
+        self.complete_meta_dict = {}
 
-    def set_query_mode_completer(self, schema):
+    def set_query_mode_completer(self, schema, meta_dict=None):
         self.complete_sources += constants.SQL_KEYWORDS
         self.complete_sources += schema
+        base_meta_dict = {k: 'keyword' for k in constants.SQL_KEYWORDS}
+        if meta_dict:
+            base_meta_dict.update(meta_dict)
+        self.complete_meta_dict = base_meta_dict
 
     def _get_prompt(self):
         data_source_name = self.data_source_name if self.data_source_name else '(No DataSource)'
@@ -117,7 +128,11 @@ class Redaql:
 
     def _get_completer(self):
         self.complete_sources = list(set(self.complete_sources))
-        return FuzzyWordCompleter(self.complete_sources)
+        return FuzzyWordCompleter(
+            words=self.complete_sources,
+            meta_dict=self.complete_meta_dict
+
+        )
 
 
 def main():

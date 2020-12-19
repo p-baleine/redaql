@@ -93,7 +93,14 @@ class ConnectionExecutor(Executor):
             columns = list(
                 itertools.chain.from_iterable([schema['columns'] for schema in res['schema']])
             )
-            self.redaql_instance.set_query_mode_completer(schemas + columns)
+            meta_dict = {s: 'table' for s in schemas}
+            meta_dict.update(
+                {c: 'column' for c in columns}
+            )
+            self.redaql_instance.set_query_mode_completer(
+                schema=schemas + columns,
+                meta_dict=meta_dict
+            )
 
 
 class DescExecutor(Executor):
