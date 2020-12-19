@@ -20,7 +20,7 @@ from redash_py.exceptions import RedashPyException
 
 class SpecialCommandHandler:
     def __init__(self, redaql_instance, command):
-        commands = re.split(' +', command)
+        commands = re.split(' +', command.strip())
         self.redaql_instance = redaql_instance
         self.sp_command = commands[0].split('\\')[1]
         self.option = []
@@ -48,6 +48,8 @@ class Redaql:
     def init(self):
         version = self.client.get_server_version()
         print(f'\nsuccess connect server version {version}\n')
+        if self.data_source_name is None:
+            self.complete_sources += [d['name'] for d in self.client.get_data_sources()]
 
     def loop(self):
         try:
@@ -60,9 +62,12 @@ class Redaql:
         except (exceptions.RedaqlException, RedashPyException) as e:
             print(e)
             self.buffer = []
-        except (KeyboardInterrupt, EOFError) as e:
+        except KeyboardInterrupt as e:
             print('if want to exit, use \\q')
             self.buffer = []
+        except EOFError as e:
+            print('Bye.')
+            sys.exit(0)
 
     def handle(self, text):
         if text == '':
@@ -105,7 +110,7 @@ class Redaql:
         self.complete_sources += schema
 
     def _get_prompt(self):
-        data_source_name = self.data_source_name if self.data_source_name else ''
+        data_source_name = self.data_source_name if self.data_source_name else '(No DataSource)'
         if self.buffer:
             return f'{data_source_name}-# '
         return f'{data_source_name}=# '
