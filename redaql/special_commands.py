@@ -1,4 +1,6 @@
 import sys
+import fnmatch
+from functools import lru_cache
 
 from abc import ABC, abstractmethod
 from redash_py.client import RedashAPIClient
@@ -8,6 +10,10 @@ from exceptions import NotFoundDataSourceException
 class Executor(ABC):
 
     def __init__(self, redaql_instance, *args):
+        """
+        :param redaql.command.Redaql redaql_instance:
+        :param args:
+        """
         self.redaql_instance = redaql_instance
         self.args = args
 
@@ -86,9 +92,45 @@ class ConnectionExecutor(Executor):
             self.redaql_instance.set_query_mode_completer(schemas)
 
 
+class DescExecutor(Executor):
+
+    @staticmethod
+    def help_text():
+        return 'describe table.'
+
+    def execute(self):
+        if not self.args:
+            schemas = self._get_schemas()
+            for schema in schemas:
+                print(schema['name'])
+
+        else:
+            table_name = self.args[0]
+            schemas = self._get_schemas()
+            is_notfound = True
+            for schema in schemas:
+                if fnmatch.fnmatch(schema['name'], table_name):
+                    print(f'## {schema["name"]}')
+                    print('\n'.join(
+                        [f'- {c}'for c in schema['columns']]
+                    ))
+                    is_notfound = False
+            if is_notfound:
+                print(f'No Such table {table_name}')
+
+    @lru_cache()
+    def _get_schemas(self):
+        client: RedashAPIClient = self.redaql_instance.client
+        schemas = client.get_data_source_schema(
+            self.redaql_instance.data_source_name
+        )
+        return schemas['schema']
+
+
 SP_COMMANDS = {
     'c': ConnectionExecutor,
     'q': ExitExecutor,
+    'd': DescExecutor,
     'x': PivotExecutor,
     '?': HelpExecutor,
 }
