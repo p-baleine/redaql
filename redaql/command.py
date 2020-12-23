@@ -49,6 +49,7 @@ class Redaql:
         self.buffer = []
         self.complete_sources = []
         self.complete_meta_dict = {}
+        self.history = FileHistory(f'{expanduser("~")}/.redaql.hist')
         self.init()
 
     def init(self):
@@ -61,7 +62,7 @@ class Redaql:
         try:
             answer = prompt(
                 self._get_prompt,
-                history=FileHistory(f'{expanduser("~")}/.redaql.hist'),
+                history=self.history,
                 completer=self._get_completer(),
             )
             self.handle(answer)
@@ -131,7 +132,6 @@ class Redaql:
         return FuzzyWordCompleter(
             words=self.complete_sources,
             meta_dict=self.complete_meta_dict
-
         )
 
 

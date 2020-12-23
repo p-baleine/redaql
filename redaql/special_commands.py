@@ -89,6 +89,8 @@ class ConnectionExecutor(Executor):
             self.redaql_instance.data_source_name = input_ds_name
             self.redaql_instance.reset_completer()
             res = client.get_data_source_schema(input_ds_name)
+            if 'schema' not in res:
+                return
             schemas = [schema['name'] for schema in res['schema']]
             columns = list(
                 itertools.chain.from_iterable([schema['columns'] for schema in res['schema']])
@@ -135,6 +137,8 @@ class DescExecutor(Executor):
         schemas = client.get_data_source_schema(
             self.redaql_instance.data_source_name
         )
+        if 'schema' not in schemas:
+            return []
         return schemas['schema']
 
 
