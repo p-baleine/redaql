@@ -9,7 +9,7 @@ def is_special_command(text: str):
 
 def is_end(text: str):
     cleaned_text = _remove_comment(text)
-    return re.match('.*; *', cleaned_text) is not None
+    return re.match('.*; *', cleaned_text.split('\n')[-1]) is not None
 
 
 def _remove_comment(text):
