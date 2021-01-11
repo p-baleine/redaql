@@ -21,20 +21,23 @@ class QueryExecutor:
         rows = query_result['data']['rows']
         columns = query_result['data']['columns']
         column_names = [col['name'] for col in columns]
+        results = []
         if rows:
             if self.pivot_result:
-                return self._get_pivot_report(rows, column_names)
+                results = self._get_pivot_report(rows, column_names)
 
             else:
-                return self._get_pretty_report(rows, column_names)
-        return 'no results.\n'
+                results = self._get_pretty_report(rows, column_names)
+        if not results:
+            return 'no rows returned.\n'
+        return results + f'\n{len(rows)} rows returned.\n'
 
     def _get_pretty_report(self, base_data, columns):
         table = PrettyTable(columns)
         for row in base_data:
             row_data = [row[col] for col in columns]
             table.add_row(row_data)
-        return table
+        return table.get_string()
 
     def _get_pivot_report(self, base_data, columns):
         result = ''

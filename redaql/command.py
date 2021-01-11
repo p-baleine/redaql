@@ -4,11 +4,11 @@ import traceback
 
 from os.path import expanduser
 
-import utils
-import exceptions
-import special_commands
-import constants
-from query_executor import QueryExecutor
+from redaql import utils
+from redaql import exceptions
+from redaql import special_commands
+from redaql import constants
+from redaql.query_executor import QueryExecutor
 
 from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory

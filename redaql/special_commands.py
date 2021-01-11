@@ -5,7 +5,7 @@ from functools import lru_cache
 
 from abc import ABC, abstractmethod
 from redash_py.client import RedashAPIClient
-from exceptions import NotFoundDataSourceException
+from redaql.exceptions import NotFoundDataSourceException
 
 
 class Executor(ABC):
