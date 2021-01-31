@@ -15,7 +15,8 @@ class QueryExecutor:
         result = client.get_adhoc_query_result(
             query=self.query_string,
             data_source_name=self.datasource_name,
-            retry_count=1000,
+            retry_count=100000,
+            max_age=0,
         )
         query_result = result['query_result']
         rows = query_result['data']['rows']
