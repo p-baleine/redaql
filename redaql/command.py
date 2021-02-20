@@ -3,6 +3,7 @@ import re
 import traceback
 
 from os.path import expanduser
+from textwrap import dedent
 
 from redaql import utils
 from redaql import exceptions
@@ -16,6 +17,8 @@ from prompt_toolkit.completion import FuzzyWordCompleter
 
 from redash_py.client import RedashAPIClient
 from redash_py.exceptions import RedashPyException
+
+from .__version__ import __VERSION__
 
 
 class SpecialCommandHandler:
@@ -54,7 +57,13 @@ class Redaql:
 
     def init(self):
         version = self.client.get_server_version()
-        print(f'\nsuccess connect server version {version}\n')
+        print(dedent(f"""
+        SUCCESS CONNECT
+        - server version {version}
+        - client version {__VERSION__}
+
+        """))
+
         if self.data_source_name is None:
             self.complete_sources += [d['name'] for d in self.client.get_data_sources()]
 
