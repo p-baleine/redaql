@@ -18,7 +18,7 @@ from prompt_toolkit.completion import FuzzyWordCompleter
 from redash_py.client import RedashAPIClient
 from redash_py.exceptions import RedashPyException
 
-from .__version__ import __VERSION__
+from __version__ import __VERSION__
 
 
 class SpecialCommandHandler:
