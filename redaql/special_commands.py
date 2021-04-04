@@ -6,6 +6,7 @@ from functools import lru_cache
 from abc import ABC, abstractmethod
 from redash_py.client import RedashAPIClient
 from redaql.exceptions import NotFoundDataSourceException
+from .query_executor import QueryExecutor
 
 
 class Executor(ABC):
@@ -75,11 +76,12 @@ class ConnectionExecutor(Executor):
         if not self.args:
             # show datasource name
             ds_names = []
+            message = ''
             for ds in client.get_data_sources():
-                print(f'{ds["name"]}:{ds["type"]}')
+                message += f'{ds["name"]}:{ds["type"]}\n'
                 ds_names.append(ds['name'])
             self.redaql_instance.complete_sources += ds_names
-
+            return message
         else:
             # set datasource name
             input_ds_name = self.args[0]
@@ -114,22 +116,26 @@ class DescExecutor(Executor):
     def execute(self):
         if not self.args:
             schemas = self._get_schemas()
+            messages = ''
             for schema in schemas:
-                print(schema['name'])
-
+                messages += f'{schema["name"]}\n'
+            return messages
         else:
             table_name = self.args[0]
             schemas = self._get_schemas()
             is_notfound = True
+            messages = ''
             for schema in schemas:
                 if fnmatch.fnmatch(schema['name'], table_name):
-                    print(f'## {schema["name"]}')
-                    print('\n'.join(
+                    messages += f'## {schema["name"]}\n'
+                    messages += ('\n'.join(
                         [f'- {c}'for c in schema['columns']]
                     ))
+                    messages += '\n'
                     is_notfound = False
             if is_notfound:
-                print(f'No Such table {table_name}')
+                messages += f'No Such table {table_name}'
+            return messages
 
     @lru_cache()
     def _get_schemas(self):
@@ -142,10 +148,44 @@ class DescExecutor(Executor):
         return schemas['schema']
 
 
+class LoadExecutor(Executor):
+
+    @staticmethod
+    def help_text():
+        return 'Load Query from Redash.'
+
+    def execute(self):
+        client: RedashAPIClient = self.redaql_instance.client
+        args = self.args
+        messages = ''
+        if not args or not args[0].isdigit():
+            messages += 'need query_id'
+            return messages
+        query_id = int(args[0])
+        query = client.get_query_by_id(query_id)
+        from pprint import pprint
+        pprint(query)
+        sql = query['query']
+        data_source_id = query['data_source_id']
+
+        data_sources = client.get_data_sources()
+        data_source_name = [ds['name'] for ds in data_sources if ds['id'] == data_source_id][0]
+
+        self.redaql_instance.history.append_string(sql)
+        executor = QueryExecutor(
+            redaql_instance=self.redaql_instance,
+            query_string=sql,
+            pivot_result=self.redaql_instance.pivot_result,
+            datasource_name=data_source_name,
+        )
+        return executor.execute_query()
+
+
 SP_COMMANDS = {
     'c': ConnectionExecutor,
     'q': ExitExecutor,
     'd': DescExecutor,
     'x': PivotExecutor,
+    'l': LoadExecutor,
     '?': HelpExecutor,
 }
