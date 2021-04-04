@@ -22,6 +22,7 @@ class QueryExecutor:
         rows = query_result['data']['rows']
         columns = query_result['data']['columns']
         column_names = [col['name'] for col in columns]
+        runtime = query_result['runtime']
         results = []
         if rows:
             if self.pivot_result:
@@ -31,7 +32,12 @@ class QueryExecutor:
                 results = self._get_pretty_report(rows, column_names)
         if not results:
             return 'no rows returned.\n'
-        return results + f'\n{len(rows)} rows returned.\n'
+
+        return_message = f'{len(rows)} rows returned.'
+        if len(rows) == 1:
+            return_message = f'1 row returned.'
+        runtime_message = f'Time: {round(runtime, 4)}s'
+        return f'\n{results} \n\n{return_message}\n{runtime_message}\n'
 
     def _get_pretty_report(self, base_data, columns):
         table = PrettyTable(columns)
