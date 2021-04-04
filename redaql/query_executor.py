@@ -31,7 +31,11 @@ class QueryExecutor:
                 results = self._get_pretty_report(rows, column_names)
         if not results:
             return 'no rows returned.\n'
-        return results + f'\n{len(rows)} rows returned.\n'
+
+        footer = f'{len(rows)} rows returned.'
+        if len(rows) == 1:
+            footer = f'1 row returned.'
+        return f'{results} \n\n{footer}\n'
 
     def _get_pretty_report(self, base_data, columns):
         table = PrettyTable(columns)
