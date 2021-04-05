@@ -11,3 +11,6 @@ class InvalidSpCommandException(RedaqlException):
 class NotFoundDataSourceException(RedaqlException):
     """"invalid ds"""
 
+
+class FutureFeatureException(RedaqlException):
+    """ future """

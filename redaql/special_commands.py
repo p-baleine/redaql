@@ -5,7 +5,7 @@ from functools import lru_cache
 
 from abc import ABC, abstractmethod
 from redash_py.client import RedashAPIClient
-from redaql.exceptions import NotFoundDataSourceException
+from redaql.exceptions import NotFoundDataSourceException, FutureFeatureException
 from .query_executor import QueryExecutor
 
 
@@ -163,10 +163,12 @@ class LoadExecutor(Executor):
             return messages
         query_id = int(args[0])
         query = client.get_query_by_id(query_id)
-        from pprint import pprint
-        pprint(query)
         sql = query['query']
         data_source_id = query['data_source_id']
+        options = query['options']
+        # TODO need fix
+        if len(options['parameters']) > 0:
+            raise FutureFeatureException(f'Query ID {query_id} need some parameters. Cannot execute.')
 
         data_sources = client.get_data_sources()
         data_source_name = [ds['name'] for ds in data_sources if ds['id'] == data_source_id][0]
