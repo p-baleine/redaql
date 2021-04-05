@@ -37,7 +37,7 @@ class QueryExecutor:
         if len(rows) == 1:
             return_message = f'1 row returned.'
         runtime_message = f'Time: {round(runtime, 4)}s'
-        return f'\n{results} \n\n{return_message}\n{runtime_message}\n'
+        return f'{results} \n\n{return_message}\n{runtime_message}\n'
 
     def _get_pretty_report(self, base_data, columns):
         table = PrettyTable(columns)

@@ -120,12 +120,13 @@ class Redaql:
             datasource_name=self.data_source_name,
             pivot_result=self.pivot_result
         )
-        results = executor.execute_query()
-        print(results)
+        result = executor.execute_query()
+        self._display(result)
 
     def execute_special_command(self, command_string):
         spc_handler = SpecialCommandHandler(self, command_string)
-        spc_handler.execute()
+        result = spc_handler.execute()
+        self._display(result)
 
     def reset_completer(self):
         self.complete_sources = []
@@ -152,6 +153,11 @@ class Redaql:
             meta_dict=self.complete_meta_dict
         )
 
+    def _display(self, message):
+        if not message:
+            return
+        print(f'\n{message}')
+
 
 class SpecialCommandHandler:
 
@@ -169,7 +175,7 @@ class SpecialCommandHandler:
                 f'{self.sp_command} is not a valid special command.'
             )
         executor = special_commands.SP_COMMANDS[self.sp_command]
-        executor(self.redaql_instance, *self.option).execute()
+        return executor(self.redaql_instance, *self.option).execute()
 
 
 def init():
