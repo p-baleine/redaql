@@ -5,7 +5,12 @@ from functools import lru_cache
 
 from abc import ABC, abstractmethod
 from redash_py.client import RedashAPIClient
-from redaql.exceptions import NotFoundDataSourceException, FutureFeatureException
+from redaql.exceptions import (
+    NotFoundDataSourceException,
+    FutureFeatureException,
+    LatestQueryFailedException,
+    InvalidArgumentException
+)
 from .query_executor import QueryExecutor
 
 
@@ -183,11 +188,35 @@ class LoadExecutor(Executor):
         return executor.execute_query()
 
 
+class SaveExecutor(Executor):
+
+    @staticmethod
+    def help_text():
+        return 'Save Query To Redash.'
+
+    def execute(self):
+        client: RedashAPIClient = self.redaql_instance.client
+        last_query = self.redaql_instance.last_succeeded_query
+        if not last_query:
+            raise LatestQueryFailedException('The last query must be successful for saving.')
+        args = self.args
+        if not args or args[0] == '':
+            raise InvalidArgumentException('need one argument, for QUERY NAME.')
+        response = client.create_query(
+            name=args[0],
+            data_source_name=last_query.datasource_name,
+            query=last_query.sql,
+        )
+        query_id = response['id']
+        return f'query created. {self.redaql_instance.client.host}queries/{query_id}'
+
+
 SP_COMMANDS = {
     'c': ConnectionExecutor,
     'q': ExitExecutor,
     'd': DescExecutor,
     'x': PivotExecutor,
     'l': LoadExecutor,
+    's': SaveExecutor,
     '?': HelpExecutor,
 }

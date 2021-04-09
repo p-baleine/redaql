@@ -14,3 +14,11 @@ class NotFoundDataSourceException(RedaqlException):
 
 class FutureFeatureException(RedaqlException):
     """ future """
+
+
+class LatestQueryFailedException(RedaqlException):
+    """ Failed Query Buffer """
+
+
+class InvalidArgumentException(RedaqlException):
+    """ invalid arguments """

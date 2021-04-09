@@ -32,6 +32,12 @@ class Args:
         return dataclasses.asdict(self)
 
 
+@dataclasses.dataclass(frozen=True)
+class LastQuery:
+    sql: str
+    datasource_name: str
+
+
 class Redaql:
     def __init__(
         self,
@@ -52,6 +58,7 @@ class Redaql:
         self.complete_sources = []
         self.complete_meta_dict = {}
         self.history = FileHistory(f'{expanduser("~")}/.redaql.hist')
+        self.last_succeeded_query: Optional[LastQuery] = None
         self.init()
 
     def init(self):
@@ -114,14 +121,20 @@ class Redaql:
             return
 
     def execute_query(self):
+        self.last_succeeded_query = None
+        query = ' '.join(self.buffer)
         executor = QueryExecutor(
             redaql_instance=self,
-            query_string=' '.join(self.buffer),
+            query_string=query,
             datasource_name=self.data_source_name,
             pivot_result=self.pivot_result
         )
         result = executor.execute_query()
         self._display(result)
+        self.last_succeeded_query = LastQuery(
+            sql=query,
+            datasource_name=self.data_source_name
+        )
 
     def execute_special_command(self, command_string):
         spc_handler = SpecialCommandHandler(self, command_string)
