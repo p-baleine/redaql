@@ -202,8 +202,8 @@ def init():
         default=None,
     )
     parser.add_argument(
-        '-i',
-        '--initial-data-source-name',
+        '-d',
+        '--data-source-name',
         help=dedent("""
         initial datasource name.
         if not set, no datasource selected.
@@ -215,7 +215,7 @@ def init():
         api_key=args.api_key,
         host=args.server_host,
         proxy=args.proxy,
-        initial_data_source_name=args.initial_data_source_name,
+        initial_data_source_name=args.data_source_name,
     )
 
 

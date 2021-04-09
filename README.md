@@ -12,7 +12,7 @@ redaql prioritizes arguments over environment variables.
 |-k/--api-key|REDASH_API_KEY|API KEY(user api key)|True|
 |-s/--server-host|REDASH_SERVICE_URL|Redash server hostname. ex) https://your.redash.server.host/|True|
 |-p/--proxy|REDASH_HTTP_PROXY|if your redash server restricted by Proxy, set url format. ex)http://user:pass@your.proxy.server:proxy-port|False|
-|-i/--initial-data-source-name||inital connect datasource name.|False|
+|-d/--data-source-name||initial connect datasource name.|False|
 
 if you want to use redaql with direnv, rename `.envrc.sample` to `.envrc` and set attributes.
 
@@ -25,6 +25,7 @@ redaql has management commands.
 \q: exit.
 \d: describe table.
 \x: query result toggle pivot.
+\l: Load Query from Redash.
 \?: HELP SP COMMANDS.
 ```
 
